@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-md">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Your routes</h2>
+
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex space-x-2">
+            <a href="{% url 'route_create' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Create a new route.
+            </a>
+        </div>
+
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="inline-flex items-center text-sm text-red-600 hover:text-red-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V7.414l-5-5H3zm7 2.414L13.586 8H10V5.414zM6 9a1 1 0 100 2h3a1 1 0 100-2H6zm0 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
+                Log out
+            </button>
+        </form>
+    </div>
+
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="p-4 {% if message.tags == 'success' %}bg-green-50 text-green-700 border-l-4 border-green-500{% elif message.tags == 'error' %}bg-red-50 text-red-700 border-l-4 border-red-500{% else %}bg-blue-50 text-blue-700 border-l-4 border-blue-500{% endif %} rounded">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if routes %}
+        <ul class="space-y-3">
+            {% for route in routes %}
+                <li class="flex items-center justify-between rounded-lg bg-gray-100 hover:bg-gray-200 transition">
+                    <a href="{% url 'route_detail' route.id %}" class="block flex-grow px-4 py-2 text-gray-700">
+                        {{ route.name }}
+                    </a>
+
+                    <div class="flex items-center mr-2">
+                        <form method="post" action="{% url 'route_delete' route.id %}" class="delete-form" onsubmit="return confirm('Czy na pewno chcesz usunąć tę trasę?');">
+                            {% csrf_token %}
+                            <button type="submit" class="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-gray-500">You do not have any routes.</p>
+    {% endif %}
+</div>
+{% endblock %}

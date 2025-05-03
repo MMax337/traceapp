@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="max-w-md w-full bg-white rounded-lg shadow-lg p-8 m-4 mx-auto">
+  <div class="text-center mb-8">
+    <h2 class="text-3xl font-bold text-gray-800">Utwórz konto</h2>
+    <p class="text-gray-600 mt-2">Dołącz do naszej społeczności</p>
+  </div>
+
+  <form method="post" class="space-y-6" id="registration-form">
+    {% csrf_token %}
+
+    <!-- Hidden field for points data -->
+    <input type="hidden" id="points-data" name="points_data" value="">
+
+    {% for field in form %}
+      <div class="space-y-2">
+        <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-700 block">
+          {{ field.label }}
+        </label>
+        {% render_field field class="w-full px-4 py-2 border-2 border-black rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %}
+
+        {% if field.errors %}
+          {% for error in field.errors %}
+            <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+          {% endfor %}
+        {% endif %}
+      </div>
+    {% endfor %}
+    
+    <div class="pt-2">
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow transition duration-200 ease-in-out">
+        Register
+      </button>
+    </div>
+  </form>
+  
+  <div class="text-center mt-6 text-sm">
+    <p class="text-gray-600">
+      Already have an account?
+      <a href="{% url 'login' %}" class="text-blue-600 hover:text-blue-800 font-medium">
+        Log in here
+      </a>
+    </p>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get the form and points-data elements
+    const form = document.getElementById('registration-form');
+    const pointsDataInput = document.getElementById('points-data');
+  
+    // Function to get all routes data from localStorage
+    function getRoutesFromLocalStorage() {
+      try {
+        // Get the routes data from localStorage
+        const routesData = localStorage.getItem('routes');
+        
+        if (routesData) {
+          console.log('Routes data found in localStorage');
+          return JSON.parse(routesData);
+        } else {
+          console.log('No routes data found in localStorage');
+          return {};
+        }
+      } catch (e) {
+        console.error('Error reading routes from localStorage:', e);
+        return {};
+      }
+    }
+    
+    // Set the points data from localStorage when the page loads
+    if (pointsDataInput) {
+      const routesData = getRoutesFromLocalStorage();
+      // Convert the routes object to a JSON string
+      pointsDataInput.value = JSON.stringify(routesData);
+      console.log('Set initial routes data:', pointsDataInput.value);
+    }
+  
+    // Add form submit event listener
+    if (form) {
+      form.addEventListener('submit', function(event) {
+        // Update the routes data one more time before submission
+        // This ensures we have the latest data
+        if (pointsDataInput) {
+          const routesData = getRoutesFromLocalStorage();
+          pointsDataInput.value = JSON.stringify(routesData);
+          console.log('Submitting form with routes data:', pointsDataInput.value);
+        }
+        
+        // Form will submit normally with the points_data field included
+      });
+    }
+  });
+</script>
+{% endblock %}

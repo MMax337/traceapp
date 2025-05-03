@@ -1,0 +1,28 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    {% tailwind_css %}
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikacja do tras</title>
+</head>
+<body class="bg-gray-50 min-h-screen">
+{% comment %} <body class="bg-gray-50 font-serif leading-normal tracking-normal min-h-screen flex justify-center items-center min-w-screen"> {% endcomment %}
+
+
+    <header>
+        <!-- Główny nagłówek i menu, jeśli chcesz -->
+    </header>
+
+    {% block content %}
+    {% endblock %}
+
+    <footer>
+        <!-- Stopka strony -->
+    </footer>
+</body>
+</html>
