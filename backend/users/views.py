@@ -7,7 +7,7 @@ from django.urls import reverse
 from routes.models import Route, RoutePoint
 
 def register(request):
-    """Rejestracja nowego użytkownika."""
+    """Registration of a new user."""
 
     if request.method != 'POST':
         form = UserCreationForm()

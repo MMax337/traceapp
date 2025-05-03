@@ -15,13 +15,13 @@ def index(request):
 
 @login_required
 def route_list(request):
-    """Lista tras użytkownika."""
+    """User's routes list."""
     routes = Route.objects.filter(user=request.user)
     return render(request, 'route_list.html', {'routes': routes})
 
 @login_required
 def route_create(request):
-    """Tworzenie nowej trasy dla zalogowanego użytkownika."""
+    """Create a new route for the logged-in user."""
     user = request.user
 
     if request.method == 'POST':
@@ -29,7 +29,7 @@ def route_create(request):
 
         if 'add_background' in request.POST and request.FILES.get('background_image'):
             # Handle background upload
-            background_name = request.POST.get('background_name', 'Własne tło')
+            background_name = request.POST.get('background_name', 'Custom background')
             background_image = request.FILES['background_image']
 
             # Create new background
@@ -39,7 +39,7 @@ def route_create(request):
                 user=user
             )
 
-            messages.success(request, f"Dodano nowe tło: {background_name}")
+            messages.success(request, f"Added new background: {background_name}")
 
             # Just create a new empty form - no need to set queryset yet
             form = RouteForm()
@@ -53,7 +53,7 @@ def route_create(request):
                 background.delete()
                 messages.success(request, f"Usunięto tło: {background_name}")
             except BackgroundImage.DoesNotExist:
-                messages.error(request, "Nie znaleziono tła lub nie masz uprawnień do jego usunięcia")
+                messages.error(request, "Background not found or not authorized")
             
             return redirect('route_create')
         elif form.is_valid():
@@ -83,7 +83,7 @@ def route_create(request):
     })
 
 def create_anonymous_route(request):
-    """Tworzenie tymczasowej trasy dla niezalogowanego użytkownika."""
+    """Create temporary route for non-logged in user."""
     if request.method == 'POST':
         form = RouteForm(request.POST)
         if form.is_valid():
@@ -176,7 +176,7 @@ def route_delete(request, route_id):
         
         route.delete()
         
-        messages.success(request, f"Trasa '{route_name}' została usunięta.")
+        messages.success(request, f"Route '{route_name}' was deleted.")
         return redirect('route_list')
     
     return render(request, 'route_confirm_delete.html', {'route': route})

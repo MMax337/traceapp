@@ -8,13 +8,13 @@ import json
 User = get_user_model()
 
 class MinimalRouteAPITests(TestCase):
-    """Minimalne testy dla API tras - tylko te, które są na pewno dostępne."""
+    """Minimal tests for route API - only those that are definitely available."""
     
     def setUp(self):
-        # Utwórz klienta testowego
+        # Create test client
         self.client = Client()
         
-        # Utwórz użytkownika testowego
+        # Create test user
         self.username = 'testuser'
         self.password = 'testpassword'
         self.user = User.objects.create_user(
@@ -23,49 +23,49 @@ class MinimalRouteAPITests(TestCase):
             password=self.password
         )
         
-        # Utwórz tło
+        # Create background
         self.background = BackgroundImage.objects.create(
             name='Test Background',
             image=SimpleUploadedFile("test_image.jpg", b"file_content", content_type="image/jpeg")
         )
         
-        # Utwórz trasę dla użytkownika
+        # Create route for user
         self.route = Route.objects.create(
             name='Test Route',
             background=self.background,
             user=self.user
         )
         
-        # Uzyskaj token API dla użytkownika
+        # Get API token for user
         from rest_framework.authtoken.models import Token
         self.token = Token.objects.create(user=self.user)
         self.auth_header = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
     
     def test_api_get_routes(self):
-        """Test pobierania tras przez API."""
-        # Wywołaj endpoint API
+        """Test retrieving routes through API."""
+        # Call API endpoint
         response = self.client.get(
             reverse('route-list'),
             **self.auth_header
         )
         
-        # Sprawdź, czy odpowiedź jest poprawna
+        # Check if response is correct
         self.assertEqual(response.status_code, 200)
         
-        # Sprawdź, czy trasa jest w odpowiedzi
+        # Check if route is in the response
         data = json.loads(response.content)
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['name'], 'Test Route')
     
     def test_api_create_route(self):
-        """Test tworzenia trasy przez API."""
-        # Przygotuj dane dla nowej trasy
+        """Test creating a route through API."""
+        # Prepare data for new route
         route_data = {
             'name': 'API Test Route',
             'background': self.background.id
         }
         
-        # Wywołaj endpoint API
+        # Call API endpoint
         response = self.client.post(
             reverse('route-list'),
             data=json.dumps(route_data),
@@ -73,17 +73,17 @@ class MinimalRouteAPITests(TestCase):
             **self.auth_header
         )
         
-        # Sprawdź, czy odpowiedź jest poprawna
+        # Check if response is correct
         self.assertEqual(response.status_code, 201)
         
-        # Sprawdź, czy trasa została utworzona
+        # Check if route was created
         data = json.loads(response.content)
         self.assertEqual(data['name'], 'API Test Route')
         self.assertTrue(Route.objects.filter(name='API Test Route').exists())
     
     def test_api_bulk_update_points(self):
-        """Test masowej aktualizacji punktów trasy przez API."""
-        # Przygotuj dane dla aktualizacji punktów
+        """Test bulk update of route points through API."""
+        # Prepare data for points update
         points_data = {
             'points': [
                 {'x': 150, 'y': 150, 'color': '#FF00FF', 'order': 0},
@@ -91,7 +91,7 @@ class MinimalRouteAPITests(TestCase):
             ]
         }
         
-        # Wywołaj endpoint API (używając bezpośredniego URL)
+        # Call API endpoint (using direct URL)
         response = self.client.post(
             f'/api/routes/{self.route.id}/bulk-update-points/',
             data=json.dumps(points_data),
@@ -99,10 +99,10 @@ class MinimalRouteAPITests(TestCase):
             **self.auth_header
         )
         
-        # Sprawdź, czy odpowiedź jest poprawna
+        # Check if response is correct
         self.assertEqual(response.status_code, 200)
     
-        # Sprawdź, czy punkty zostały zaktualizowane
+        # Check if points were updated
         updated_points = RoutePoint.objects.filter(route=self.route).order_by('order')
         self.assertEqual(len(updated_points), 2)
         self.assertEqual(updated_points[0].x, 150)
